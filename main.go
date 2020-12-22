@@ -1,19 +1,21 @@
 package main
 
 import (
+	"context"
 	"crypto/md5"
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
 	"fmt"
-	"github.com/kyo1/go-cartesian-product"
-	"gopkg.in/alecthomas/kingpin.v2"
 	"hash"
 	"log"
 	"strings"
+
+	"github.com/kyo1/go-cartesian-product"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var chars = []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
+var chars = []interface{}{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
 
 var (
 	app = kingpin.New("pow", "A command-line Proof-of-Work solver")
@@ -52,12 +54,21 @@ func hashStr(algorithm, input string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
-func solve(algorithm, inputPrefix, inputSuffix, outputPrefix, outputSuffix string) (string, error) {
-	var candidate string
+func interfacesToString(v []interface{}) string {
+	var sb strings.Builder
+	for _, x := range v {
+		sb.WriteString(x.(string))
+	}
+	return sb.String()
+}
 
-	all := cartesian.All(chars)
-	for {
-		candidate = fmt.Sprintf("%s%s%s", inputPrefix, strings.Join(all(), ""), inputSuffix)
+func solve(algorithm, inputPrefix, inputSuffix, outputPrefix, outputSuffix string) (string, error) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	for s := range cartesian.All(ctx, chars) {
+		candidate := fmt.Sprintf("%s%s%s", inputPrefix, interfacesToString(s), inputSuffix)
+
 		hexDigest, err := hashStr(algorithm, candidate)
 		if err != nil {
 			return "", err
@@ -67,6 +78,7 @@ func solve(algorithm, inputPrefix, inputSuffix, outputPrefix, outputSuffix strin
 			return candidate, nil
 		}
 	}
+	return "", nil
 }
 
 func main() {

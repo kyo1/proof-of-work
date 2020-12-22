@@ -12,11 +12,11 @@ go get -u github.com/kyo1/proof-of-work
 $ alias pow='proof-of-work'
 
 $ pow -a md5 --output-prefix=000
-2Da
+bHC
 
 $ pow -a md5 --output-prefix=000 --dump
-md5(2Da) = 000a7e887bdb8f67cc3f82c1e177dbb2
+md5(bHC) = 0001978d2e6c3473f66d8d58c0c20bc3
 
 $ pow -a sha512 --input-prefix=aaa --output-prefix=00000 --dump
-sha512(aaa3UVd) = 00000b26b6ee740f12be4d540c4fe39a419d5320088c1b70e3ee3b0d753c91d170959daa2e7ab6222f5b7c8df11bdd6dc440dd8e7277f57bf60b705dac25af9a
+sha512(aaadBbD) = 00000a65fe21ac6e7be245d92ac1ca4c7eb03ea4fc3f8f6d3eecc4089c13a3d78bf9343391832f6731401a63c2c91c05ac4104af737bd288536a5627f4499877
 ```
